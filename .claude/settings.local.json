@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(timeout 5 python -c ' *)",
+      "Bash(git *)",
+      "Bash(ssh-keygen *)",
+      "Read(//c/Users/qiyz/.ssh/**)",
+      "Bash(ssh -T git@github.com)"
+    ]
+  }
+}
