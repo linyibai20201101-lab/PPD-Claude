@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>年报财报分析智能体 — ccbaby 工作门户</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <header class="agent-header">
+    <div class="agent-header-top">
+      <div class="breadcrumb"><a href="/work/">工作门户</a> / 年报财报分析智能体</div>
+      <div class="agent-status-row">
+        <span class="badge scaffold" id="statusBadge">检测中</span>
+        <span class="level-badge" id="levelBadge">L2 编排</span>
+        <span class="model-pill" id="modelPill">—</span>
+      </div>
+    </div>
+    <div class="agent-identity">
+      <div class="agent-avatar" aria-hidden="true">📊</div>
+      <div class="agent-info">
+        <h1>年报财报分析智能体</h1>
+        <p class="agent-tagline">A 股 / 港股年报 · 分章解读 · 数字校验 · 多格式交付</p>
+        <div class="capability-chips">
+          <span class="chip">PDF 分章分析</span>
+          <span class="chip">按章选页</span>
+          <span class="chip">指标 JSON</span>
+          <span class="chip">数字校验</span>
+          <span class="chip">Word 导出</span>
+          <span class="chip">竞品串联</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="workbench">
+    <!-- 左：对话 -->
+    <section class="panel column chat-column">
+      <div class="col-header">
+        <h2>对话</h2>
+        <span class="col-sub">描述目标或提问</span>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg assistant">
+          <div class="msg-avatar">AI</div>
+          <div class="msg-body">
+            <p>你好，我是年报分析智能体。你可以：</p>
+            <ul>
+              <li>上传 PDF 后说「开始分析」或点击下方快捷指令</li>
+              <li>询问历史报告、校验结果、导出方式</li>
+              <li>在「分析参数」中补充公司名、年度、竞品等</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="quick-chips" id="quickChips">
+        <button type="button" class="chip-btn" data-action="run">▶ 开始分析</button>
+        <button type="button" class="chip-btn" data-action="history">📋 历史报告</button>
+        <button type="button" class="chip-btn" data-action="help">❓ 能力说明</button>
+        <button type="button" class="chip-btn" data-action="focus-cashflow">💰 重点看现金流</button>
+      </div>
+      <div class="chat-compose">
+        <textarea id="agentInput" rows="2" placeholder="例如：分析申菱 2025 年报，重点看财务和研发…"></textarea>
+        <div class="chat-compose-actions">
+          <button class="btn primary compact" id="btnAgent" type="button">发送</button>
+          <button class="btn ghost compact" id="btnRun" type="button">直接分析</button>
+        </div>
+      </div>
+
+      <details class="config-drawer" open>
+        <summary>分析参数</summary>
+        <div class="config-body">
+          <div class="field">
+            <label>主年报 PDF <span class="req">*</span></label>
+            <div class="dropzone" id="pdfDropzone">
+              <input type="file" id="pdfInput" accept=".pdf" hidden>
+              <p id="pdfLabel">点击或拖拽主 PDF</p>
+            </div>
+          </div>
+          <div class="field">
+            <label>对比年报 PDF（可选）</label>
+            <div class="dropzone small" id="extraPdfDropzone">
+              <input type="file" id="extraPdfInput" accept=".pdf" multiple hidden>
+              <p id="extraPdfLabel">多选其他年度</p>
+            </div>
+          </div>
+          <div class="field">
+            <label>自定义 MD 模板（可选）</label>
+            <div class="dropzone small" id="tplDropzone">
+              <input type="file" id="tplInput" accept=".md" hidden>
+              <p id="tplLabel">默认内置模板</p>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="companyName">公司名称</label>
+              <input type="text" id="companyName" placeholder="广东申菱环境…">
+            </div>
+            <div class="field">
+              <label for="reportYear">报告年度</label>
+              <input type="text" id="reportYear" placeholder="2025">
+            </div>
+          </div>
+          <div class="field">
+            <label for="compareYears">对比年度（逗号分隔）</label>
+            <input type="text" id="compareYears" placeholder="2025,2024">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="competitors">可比公司</label>
+              <input type="text" id="competitors" placeholder="竞品 A, 竞品 B">
+            </div>
+            <div class="field">
+              <label for="industry">行业</label>
+              <input type="text" id="industry" placeholder="工业温控">
+            </div>
+          </div>
+          <div class="field">
+            <label for="extraInstructions">补充要求</label>
+            <textarea id="extraInstructions" rows="2"></textarea>
+          </div>
+          <div class="field">
+            <label for="modelSelect">AI 模型</label>
+            <select id="modelSelect"><option>加载中…</option></select>
+          </div>
+          <div class="field checks">
+            <label><input type="checkbox" id="sectionMode" checked> 分章分析</label>
+            <label><input type="checkbox" id="forceOcr"> 强制 OCR</label>
+          </div>
+        </div>
+      </details>
+      <p class="hint" id="statusOut"></p>
+    </section>
+
+    <!-- 中：执行轨迹 -->
+    <section class="panel column trace-column">
+      <div class="col-header">
+        <h2>执行轨迹</h2>
+        <span class="col-sub">Agent Trace</span>
+      </div>
+      <div class="progress-block hidden" id="progressBlock">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <p class="hint" id="progressMsg"></p>
+      </div>
+      <ol class="trace-timeline" id="traceTimeline">
+        <li class="trace-item idle" data-step="idle">
+          <span class="trace-dot"></span>
+          <div class="trace-content">
+            <strong>待命</strong>
+            <p>上传 PDF 并发起分析后，此处展示规划与执行步骤</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="trace-actions">
+        <h3 class="mini-title">章节重跑</h3>
+        <div class="field-row">
+          <select id="sectionSelect"><option value="">选择章节…</option></select>
+          <button class="btn ghost" id="btnRerunSection" type="button" disabled>重跑</button>
+        </div>
+      </div>
+
+      <div class="reflection-panel" id="reflectionPanel">
+        <h3 class="mini-title">自我复盘</h3>
+        <div class="reflection-body" id="reflectionBody">
+          <p class="empty-reflect">分析完成后，将基于数字校验与覆盖情况生成复盘摘要</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右：交付物 -->
+    <section class="panel column artifact-column">
+      <div class="col-header">
+        <h2>交付物</h2>
+        <span class="col-sub">Artifacts</span>
+      </div>
+      <div class="artifact-tabs">
+        <button class="tab active" data-tab="result">报告</button>
+        <button class="tab" data-tab="metrics">指标</button>
+        <button class="tab" data-tab="template">模板</button>
+      </div>
+
+      <div class="tab-panel active" id="panelResult">
+        <div class="toolbar">
+          <button class="btn ghost" id="btnCopy" disabled>复制</button>
+          <button class="btn ghost" id="btnExportMd" disabled>MD</button>
+          <button class="btn ghost" id="btnExportDocx" disabled>Word</button>
+          <button class="btn ghost" id="btnExportPdf" disabled>PDF</button>
+          <button class="btn ghost" id="btnExportXlsx" disabled>Excel</button>
+          <button class="btn ghost" id="btnCompetitorLink" disabled>竞品 →</button>
+        </div>
+        <div class="result-meta" id="resultMeta"></div>
+        <div class="verify-banner hidden" id="verifyBanner"></div>
+        <div class="metric-cards" id="metricCards"></div>
+        <div class="result-preview markdown-body" id="resultPreview">
+          <p class="empty-hint">分析完成后在此展示 Markdown 报告</p>
+        </div>
+        <details class="raw-md"><summary>原始 Markdown</summary><pre id="resultRaw"></pre></details>
+      </div>
+
+      <div class="tab-panel" id="panelMetrics">
+        <pre class="template-preview" id="metricsPreview">暂无指标数据</pre>
+        <pre class="template-preview" id="verificationPreview" style="margin-top:12px">暂无校验数据</pre>
+      </div>
+
+      <div class="tab-panel" id="panelTemplate">
+        <div class="toolbar">
+          <a class="link" href="/skills/annual-report/GAPS.md" target="_blank">能力清单</a>
+          <button class="btn ghost" id="btnReloadTemplate" type="button">刷新</button>
+        </div>
+        <pre class="template-preview" id="templatePreview">加载中…</pre>
+      </div>
+
+      <div class="history-block">
+        <h3 class="mini-title">历史报告</h3>
+        <ul class="history-list" id="historyList"><li class="empty">暂无</li></ul>
+      </div>
+    </section>
+  </div>
+
+  <footer><a href="/work/">返回工作门户</a></footer>
+  <script src="app.js"></script>
+</body>
+</html>

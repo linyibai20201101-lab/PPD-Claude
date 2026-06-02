@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片结构转 PPT — ccbaby</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a href="/">← 返回工作台</a>
+    <h1>图片结构转 PPT</h1>
+    <div class="topbar-actions">
+      <span class="status-pill" id="statusOcr">OCR: …</span>
+      <span class="status-pill" id="statusVision">Vision: …</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="panel left-panel">
+      <div class="panel-header">页面</div>
+      <div class="panel-body">
+        <div class="dropzone" id="dropzone">
+          <p>点击或拖拽上传</p>
+          <p class="hint">图片 / PDF · 支持多文件</p>
+        </div>
+        <input type="file" id="fileInput" accept="image/*,.pdf" multiple>
+
+        <div class="progress-bar" id="progressBar">
+          <div class="fill" id="progressFill"></div>
+        </div>
+
+        <div class="page-list" id="pageList"></div>
+      </div>
+    </aside>
+
+    <main class="panel center-panel">
+      <div class="preview-toolbar">
+        <button class="btn btn-secondary btn-sm" id="btnAnalyze">添加文件</button>
+        <button class="btn btn-secondary btn-sm" id="btnReanalyze" disabled>重新识别当前页</button>
+        <button class="btn btn-secondary btn-sm" id="btnUndo" disabled>撤销</button>
+      </div>
+      <div class="preview-wrap">
+        <div class="empty-state" id="emptyState">
+          <div class="icon">📊</div>
+          <p>上传图片或 PDF<br>自动识别文字、形状、图片层</p>
+        </div>
+        <div class="preview-stage" id="previewStage" style="display:none;"></div>
+      </div>
+    </main>
+
+    <aside class="panel right-panel">
+      <div class="panel-header">设置与图层</div>
+      <div class="panel-body">
+        <div class="checkbox-row">
+          <input type="checkbox" id="detectShapes" checked>
+          <label for="detectShapes">识别形状/色块</label>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="detectImages" checked>
+          <label for="detectImages">识别图片区域</label>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="useVision">
+          <label for="useVision">Vision AI 增强（需 API Key）</label>
+        </div>
+
+        <div class="field">
+          <label for="fileNameInput">导出文件名</label>
+          <input type="text" id="fileNameInput" value="presentation">
+        </div>
+
+        <button class="btn btn-primary btn-block" id="btnExport" disabled>导出 PPTX</button>
+
+        <div class="panel-header" style="margin:16px -12px 8px;padding-left:12px;">图层</div>
+        <div class="layer-list" id="layerList"></div>
+
+        <div class="panel-header" style="margin:16px -12px 8px;padding-left:12px;">属性</div>
+        <div id="propsPanel">
+          <p style="color:#64748b;font-size:0.82rem;">点击图层或预览区元素进行编辑</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

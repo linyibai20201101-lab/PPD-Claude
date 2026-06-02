@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>标讯分析 — ccbaby 工作门户</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top-bar">
+    <div class="breadcrumb"><a href="/">工作门户</a> / 标讯分析</div>
+    <h1>标讯分析</h1>
+  </header>
+
+  <div class="page">
+    <div class="intro-card">
+      <span class="badge ready">已接入</span>
+      <p>从<strong>标书信息获取</strong>导入爬取结果，自动清洗去重并生成含 ECharts 图表的 HTML 分析报告。</p>
+      <ul class="dim-list">
+        <li>招投标概况（近1年/3年、年度与月度趋势）</li>
+        <li>采购单位类型 · 地区分布 · 金额分析</li>
+        <li>采购形式分析 · 单位/地区/金额交叉分析</li>
+        <li>市场趋势：中标厂商、行业分布、成交结构</li>
+      </ul>
+      <a class="btn btn-secondary" href="/tender-info/">← 返回标书获取</a>
+    </div>
+
+    <div id="setupPanel" class="panel-card">
+      <h2>数据来源</h2>
+      <div id="sourceFromJob" class="source-banner" hidden>
+        <p>已关联标书获取任务 <code id="linkedJobId"></code> · 关键词 <strong id="linkedKeywords"></strong></p>
+        <button type="button" class="btn btn-primary" id="btnAnalyze">开始分析</button>
+      </div>
+      <div id="sourceManual" class="manual-source">
+        <p class="hint">也可手动输入任务 ID（在标书获取完成后的地址栏或结果页可见）：</p>
+        <div class="field-row">
+          <input type="text" id="manualJobId" placeholder="任务 ID，如 8aa06474b2c8">
+          <input type="text" id="manualKeywords" placeholder="关键词（可选）">
+          <button type="button" class="btn btn-primary" id="btnAnalyzeManual">分析</button>
+        </div>
+      </div>
+      <div class="upload-source">
+        <p class="hint"><strong>或上传 CSV/Excel</strong>（不依赖标书获取任务，S3.5）：</p>
+        <div class="field-row">
+          <input type="file" id="csvFile" accept=".csv,.xlsx,.xls">
+          <input type="text" id="uploadKeywords" placeholder="报告关键词">
+          <label class="check-inline"><input type="checkbox" id="enableLlmSummary" checked> LLM 摘要</label>
+          <button type="button" class="btn btn-secondary" id="btnAnalyzeUpload">上传并分析</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="progressPanel" class="panel-card" hidden>
+      <h2>分析进度</h2>
+      <p id="progressMsg" class="progress-msg">正在清洗数据并生成报告…</p>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div id="reportPanel" class="panel-card" hidden>
+      <div class="report-toolbar">
+        <h2>分析报告</h2>
+        <div class="report-actions">
+          <a id="btnOpenReport" class="btn btn-secondary btn-sm" target="_blank" rel="noopener">新窗口打开</a>
+          <button type="button" id="btnDownloadReport" class="btn btn-primary btn-sm">下载 HTML 报告</button>
+        </div>
+      </div>
+      <div id="overviewCards" class="overview-cards"></div>
+      <div id="executiveSummary" class="executive-summary-panel hidden"></div>
+      <div class="report-frame-wrap">
+        <iframe id="reportFrame" title="标讯分析报告" class="report-frame"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">返回工作门户</a> · <a href="/tender-info/">标书信息获取</a>
+  </footer>
+  <div class="toast" id="toast"></div>
+  <script src="app.js?v=2"></script>
+</body>
+</html>

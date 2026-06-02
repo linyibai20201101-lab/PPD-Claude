@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>竞品跑分表对比分析 — ccbaby 工作门户</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top-bar">
+    <div class="breadcrumb"><a href="/work/">工作门户</a> / 竞品跑分表对比分析</div>
+    <h1>竞品跑分表对比分析</h1>
+  </header>
+
+  <div class="layout">
+    <aside class="panel">
+      <span class="badge scaffold" id="statusBadge">L2 入口</span>
+      <h2>简介</h2>
+      <p>竞品多维度跑分对比。可从<strong>年报财报分析</strong>模块跳转并带入公司与竞品参数。</p>
+      <div class="field" style="margin-top:16px">
+        <label>目标公司</label>
+        <input type="text" id="inputCompany" placeholder="公司名称">
+      </div>
+      <div class="field">
+        <label>可比公司（逗号分隔）</label>
+        <input type="text" id="inputPeers" placeholder="竞品A,竞品B">
+      </div>
+      <div class="field">
+        <label>行业</label>
+        <input type="text" id="inputIndustry" placeholder="所属行业">
+      </div>
+      <div class="field">
+        <label>来源年报 report_id</label>
+        <input type="text" id="inputReportId" readonly>
+      </div>
+      <a class="btn" id="backAnnual" href="/annual-report/">← 返回年报分析</a>
+    </aside>
+
+    <main class="panel">
+      <h2>操作区</h2>
+      <div class="placeholder" id="contextBox">
+        <p>功能开发中</p>
+        <p style="margin-top:8px;font-size:0.85rem">已从 URL 预填 L2 串联参数，完整对标分析待后续迭代</p>
+      </div>
+      <pre id="statusOut" style="margin-top:16px;font-size:0.85rem;color:#64748b"></pre>
+    </main>
+  </div>
+
+  <footer>
+    <a href="/work/">返回工作门户</a>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

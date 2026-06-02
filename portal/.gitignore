@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# Virtual env
+env/
+venv/
+.venv/
+
+# Secrets
+.env
+*.pem
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs & local test output
+*.log
+api_test_result.txt
+
+# Runtime data (crawls, reports, auth cookies — recreate locally)
+tender_raw_data/*
+!tender_raw_data/.gitkeep
+!tender_raw_data/README.md
+
+tender_product_data/*
+!tender_product_data/.gitkeep
+!tender_product_data/README.md
+
+annual_report_data/*
+!annual_report_data/.gitkeep
+!annual_report_data/README.md
+
+# Playwright / crawler debug artifacts inside job dirs
+**/auth_state.json
+**/latest.png
+**/step_*.png

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>标书信息获取 — ccbaby 工作门户</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top-bar">
+    <div class="breadcrumb"><a href="/">工作门户</a> / 标书信息获取</div>
+    <h1>标书信息获取</h1>
+    <button type="button" class="btn-restart-top" id="btnRestartPortal" title="重启 portal 加载最新代码">↻ 重启服务</button>
+  </header>
+
+  <div class="page">
+    <div class="steps">
+      <div class="step active" data-step="1"><span>1</span> 登录剑鱼标讯</div>
+      <div class="step" data-step="2"><span>2</span> 设置检索条件</div>
+      <div class="step" data-step="3"><span>3</span> 执行任务</div>
+    </div>
+
+    <section class="history-card" id="jobHistorySection">
+      <h2>历史任务</h2>
+      <p class="hint">重启 portal 后仍可打开已完成任务，继续产品分析或下载 CSV。</p>
+      <ul class="history-list" id="jobHistoryList"><li class="empty">加载中…</li></ul>
+    </section>
+
+    <form id="taskForm" class="form-card" autocomplete="off">
+      <section class="form-section">
+        <h2>剑鱼标讯账号</h2>
+        <p class="hint">在此填写账号密码，提交后由服务端登录并执行检索（仅用于本次任务，不会写入页面缓存）。</p>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="useSaved" />
+          <span>使用 portal/.env 中已保存的账号</span>
+        </label>
+        <p id="envHint" class="env-hint"></p>
+
+        <div id="credentialFields" class="credential-fields">
+          <div class="field">
+            <label for="phone">手机号</label>
+            <input type="tel" id="phone" name="phone" placeholder="剑鱼标讯登录手机号" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="password">密码</label>
+            <input type="password" id="password" name="password" placeholder="登录密码" autocomplete="new-password">
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section query-section">
+        <h2>检索条件 <span class="section-tag">对标剑鱼工作台</span></h2>
+
+        <div class="field">
+          <label for="keywords">关键词 <em>*</em></label>
+          <input type="text" id="keywords" required placeholder="如：工业相机、水利工程">
+        </div>
+
+        <div class="filter-block">
+          <div class="filter-label">发布时间</div>
+          <div class="chip-row" id="timePresetRow"></div>
+          <div class="field-row custom-dates" id="customDateRow" hidden>
+            <div class="field">
+              <label for="dateFrom">开始日期</label>
+              <input type="date" id="dateFrom">
+            </div>
+            <div class="field">
+              <label for="dateTo">结束日期</label>
+              <input type="date" id="dateTo">
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-block">
+          <div class="filter-label">搜索范围</div>
+          <div class="checkbox-grid" id="scopeGrid"></div>
+        </div>
+
+        <div class="filter-block">
+          <div class="filter-label">信息类型</div>
+          <div class="chip-row" id="infoTypeModeRow">
+            <button type="button" class="chip active" data-info-mode="all">全部</button>
+            <button type="button" class="chip" data-info-mode="custom">自定义</button>
+          </div>
+          <div class="checkbox-grid info-types" id="infoTypeGrid" hidden></div>
+        </div>
+
+        <div class="filter-block filter-inline">
+          <div class="field">
+            <label for="region">地区</label>
+            <select id="region"></select>
+          </div>
+          <div class="field">
+            <label for="maxPages">最大翻页数</label>
+            <input type="number" id="maxPages" min="1" max="50" value="5">
+          </div>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="includePending" />
+          <span>包含招标/预告（未中标公告）</span>
+        </label>
+        <p class="hint inline-hint">默认只展示已中标/成交；勾选后可同时看到招标预告，已中标仍排在前面。</p>
+
+        <details class="advanced">
+          <summary>高级选项</summary>
+          <label class="checkbox-row">
+            <input type="checkbox" id="skipDetail" checked>
+            <span>仅抓列表（更快，推荐）</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="headless">
+            <span>无头模式（不显示浏览器；遇验证码时请勿勾选）</span>
+          </label>
+        </details>
+      </section>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="btnSubmit">开始执行任务</button>
+        <a class="btn btn-secondary" href="/skills/tender-info/SKILL.md" target="_blank">SKILL 说明</a>
+        <a class="btn btn-secondary" href="/tender-analysis/">深度分析 →</a>
+      </div>
+    </form>
+
+    <div id="taskPanel" class="task-panel" hidden>
+      <div class="task-header">
+        <h2>爬取过程</h2>
+        <span class="badge running" id="taskBadge">运行中</span>
+        <button type="button" class="btn btn-danger btn-sm" id="btnAbort" hidden>中止任务</button>
+      </div>
+
+      <div class="phase-track" id="phaseTrack">
+        <div class="phase-step" data-phase="login"><span>1</span>登录</div>
+        <div class="phase-step" data-phase="search"><span>2</span>搜索</div>
+        <div class="phase-step" data-phase="crawl"><span>3</span>抓取</div>
+        <div class="phase-step" data-phase="filter"><span>4</span>筛选</div>
+        <div class="phase-step" data-phase="done"><span>5</span>完成</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <span id="progressText">0%</span>
+      </div>
+      <p id="taskMessage" class="task-message"></p>
+
+      <div class="monitor-split">
+        <div class="log-panel">
+          <h3>实时日志</h3>
+          <div id="logOut" class="log-out"></div>
+        </div>
+        <div class="preview-panel">
+          <h3>浏览器画面</h3>
+          <div class="preview-frame">
+            <img id="previewImg" alt="抓取截图" hidden />
+            <p id="previewHint" class="preview-hint">任务开始后，这里会显示剑鱼页面的实时截图</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultPanel" class="result-panel" hidden>
+      <div class="result-header">
+        <h2>检索结果</h2>
+        <div class="result-actions">
+          <button type="button" class="btn btn-primary btn-sm" id="btnAnalyze" hidden>标讯分析</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnProductAnalyze" hidden>产品分析</button>
+          <a id="downloadCsv" class="btn btn-secondary btn-sm" hidden download>下载 CSV</a>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnToggleReport" hidden>查看报告</button>
+        </div>
+      </div>
+      <p id="resultSummary" class="result-summary"></p>
+      <div id="jobIdBar" class="job-id-bar" hidden>
+        <span class="job-id-label">任务 ID（供产品分析等模块使用）</span>
+        <code id="jobIdDisplay" class="job-id-code"></code>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnCopyJobId">复制</button>
+        <span class="job-id-hint">也可直接点上方「产品分析」，会自动带上此 ID</span>
+      </div>
+      <div id="resultNextSteps" class="result-next-steps" hidden>
+        <strong>下一步分析</strong>
+        <ul>
+          <li><strong>产品分析</strong>：按关键词匹配详情与附件中的产品清单（推荐，会自动抓详情）</li>
+          <li><strong>标讯分析</strong>：区域/行业/厂商等市场大盘 HTML 报告</li>
+        </ul>
+        <p class="hint">列表 CSV 仅含摘要；完整参数需通过「产品分析」抓取详情与附件。</p>
+      </div>
+      <div id="resultStats" class="result-stats" hidden></div>
+      <pre id="reportPreview" class="report-preview" hidden></pre>
+      <div class="table-wrap">
+        <table id="resultTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>类型</th>
+              <th>项目名称</th>
+              <th>采购单位</th>
+              <th>中标单位</th>
+              <th>金额</th>
+              <th>时间</th>
+              <th>地区</th>
+              <th>详情</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">返回工作门户</a> · <a href="/tender-analysis/">标讯分析</a>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+  <script src="/shared/portal-restart.js?v=2"></script>
+  <script src="app.js?v=4"></script>
+  <script>
+    document.getElementById("btnRestartPortal")?.addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      btn.disabled = true;
+      try {
+        await restartPortalService({ onToast: showToast });
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

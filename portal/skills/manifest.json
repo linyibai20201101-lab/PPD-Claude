@@ -1,0 +1,270 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "market-policy",
+      "name": "市场与政策",
+      "icon": "chart"
+    },
+    {
+      "id": "product-planning",
+      "name": "产品与企划",
+      "icon": "layout"
+    },
+    {
+      "id": "tech-rd",
+      "name": "技术与研发",
+      "icon": "cpu"
+    },
+    {
+      "id": "finance",
+      "name": "财务与资本",
+      "icon": "trending"
+    },
+    {
+      "id": "ecommerce",
+      "name": "电商",
+      "icon": "shopping"
+    },
+    {
+      "id": "dev-process",
+      "name": "开发方法论",
+      "icon": "tool"
+    }
+  ],
+  "skills": [
+    {
+      "id": "industry-research",
+      "name": "行业调研",
+      "description": "行业趋势、市场规模与竞争格局调研",
+      "category": "market-policy",
+      "url": "/industry-research/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text"
+      ]
+    },
+    {
+      "id": "policy-analysis",
+      "name": "政策分析",
+      "description": "政策文件解读与影响评估",
+      "category": "market-policy",
+      "url": "/policy-analysis/",
+      "status": "scaffold",
+      "inputTypes": [
+        "pdf",
+        "text",
+        "url"
+      ]
+    },
+    {
+      "id": "leader-analysis",
+      "name": "龙头分析",
+      "description": "行业龙头企业深度分析",
+      "category": "market-policy",
+      "url": "/leader-analysis/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text"
+      ]
+    },
+    {
+      "id": "product-ecosystem",
+      "name": "产品生态全景",
+      "description": "产品生态图谱与产业链梳理",
+      "category": "market-policy",
+      "url": "/product-ecosystem/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text"
+      ]
+    },
+    {
+      "id": "competitor-benchmark",
+      "name": "竞品跑分表对比分析",
+      "description": "竞品多维度跑分对比",
+      "category": "market-policy",
+      "url": "/competitor-benchmark/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text",
+        "table"
+      ]
+    },
+    {
+      "id": "tender-analysis",
+      "name": "标讯分析",
+      "description": "剑鱼标讯抓取、中标数据清洗统计与 HTML 分析报告",
+      "category": "market-policy",
+      "url": "/tender-analysis/",
+      "status": "ready",
+      "inputTypes": [
+        "pdf",
+        "text",
+        "csv"
+      ]
+    },
+    {
+      "id": "tender-info",
+      "name": "标书信息获取",
+      "description": "登录剑鱼标讯，按关键词查产品或企业中标情况",
+      "category": "market-policy",
+      "url": "/tender-info/",
+      "status": "ready",
+      "inputTypes": [
+        "text",
+        "url"
+      ]
+    },
+    {
+      "id": "tender-product-analysis",
+      "name": "标书产品信息分析",
+      "description": "产品行统筹+详情匹配；支持附件 PDF/Word 解析（L1+）",
+      "category": "market-policy",
+      "url": "/tender-product-analysis/",
+      "status": "ready",
+      "inputTypes": [
+        "csv",
+        "pdf",
+        "docx",
+        "url"
+      ]
+    },
+    {
+      "id": "policy-tracking",
+      "name": "政策追踪分析",
+      "description": "政策动态追踪与趋势研判",
+      "category": "market-policy",
+      "url": "/policy-tracking/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text"
+      ]
+    },
+    {
+      "id": "exhibition-info",
+      "name": "展会信息收集",
+      "description": "行业展会信息检索与汇总",
+      "category": "market-policy",
+      "url": "/exhibition-info/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text"
+      ]
+    },
+    {
+      "id": "product-design",
+      "name": "产品设计",
+      "description": "产品需求分析与设计方案",
+      "category": "product-planning",
+      "url": "/product-design/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text"
+      ]
+    },
+    {
+      "id": "planning-review",
+      "name": "企划内容审核",
+      "description": "企划文稿合规性与质量审核",
+      "category": "product-planning",
+      "url": "/planning-review/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text",
+        "pdf"
+      ]
+    },
+    {
+      "id": "planning-ppt",
+      "name": "企划PPT排版",
+      "description": "图片/PDF 转可编辑 PPT",
+      "category": "product-planning",
+      "url": "/image-to-ppt/",
+      "status": "ready",
+      "inputTypes": [
+        "image",
+        "pdf"
+      ]
+    },
+    {
+      "id": "tech-advancement",
+      "name": "技术先进性检索",
+      "description": "前沿技术检索与先进性评估",
+      "category": "tech-rd",
+      "url": "/tech-advancement/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text"
+      ]
+    },
+    {
+      "id": "rd-manpower",
+      "name": "研发人力评估",
+      "description": "研发项目人力需求评估",
+      "category": "tech-rd",
+      "url": "/rd-manpower/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text"
+      ]
+    },
+    {
+      "id": "patent-analysis",
+      "name": "专利技术分析",
+      "description": "专利技术布局与趋势分析",
+      "category": "tech-rd",
+      "url": "/patent-analysis/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text",
+        "pdf"
+      ]
+    },
+    {
+      "id": "prospectus-analysis",
+      "name": "招股书分析",
+      "description": "招股说明书关键信息提取",
+      "category": "finance",
+      "url": "/prospectus-analysis/",
+      "status": "scaffold",
+      "inputTypes": [
+        "pdf"
+      ]
+    },
+    {
+      "id": "annual-report",
+      "name": "年报财报分析",
+      "description": "年报与财务报表深度分析",
+      "category": "finance",
+      "url": "/annual-report/",
+      "status": "ready",
+      "inputTypes": [
+        "pdf"
+      ]
+    },
+    {
+      "id": "ecommerce-review",
+      "name": "电商产品评论分析",
+      "description": "电商评论情感与痛点分析",
+      "category": "ecommerce",
+      "url": "/ecommerce-review/",
+      "status": "scaffold",
+      "inputTypes": [
+        "text",
+        "csv"
+      ]
+    },
+    {
+      "id": "pm-progress-report",
+      "name": "开发进度汇报",
+      "description": "项目经理式产品能力进度汇报与技术复盘（全模块开发必遵循）",
+      "category": "dev-process",
+      "url": "/skills/pm-progress-report/SKILL.md",
+      "status": "ready",
+      "inputTypes": [
+        "text"
+      ]
+    }
+  ]
+}

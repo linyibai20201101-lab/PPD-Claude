@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>标书产品信息分析 — ccbaby 工作门户</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="breadcrumb"><a href="/work/">工作门户</a> / 标书产品信息分析</div>
+    <h1>标书产品信息分析</h1>
+    <p class="tagline">关键词 + 产品属性匹配正文/附件清单 → 金额 · 数量 · 参数</p>
+  </header>
+
+  <main class="layout">
+    <section class="panel form-panel">
+      <span class="badge scaffold" id="statusBadge">检测中</span>
+
+      <div id="linkedJobBar" class="linked-job hidden">
+        <strong>已关联标书检索任务</strong>
+        <p>任务 ID：<code id="linkedJobId"></code></p>
+        <p>关键词：<span id="linkedKeywords"></span></p>
+      </div>
+
+      <h2>输入</h2>
+      <p class="hint">
+        请先在 <a href="/tender-info/">标书信息获取</a> 完成检索并<strong>登录剑鱼</strong>，在结果区点「产品分析」带入任务与关键词后，再手动点「开始分析」。
+      </p>
+
+      <label>tender-info 任务 ID <span class="req">*</span></label>
+      <input type="text" id="sourceJobId" placeholder="25fe31ddf9f4">
+
+      <label>检索关键词（必填）</label>
+      <input type="text" id="keywords" placeholder="工业相机">
+
+      <label>最多分析项目数</label>
+      <input type="number" id="maxProjects" value="30" min="1" max="200">
+
+      <div class="checks">
+        <label><input type="checkbox" id="fetchDetail" checked> 抓取剑鱼详情（产品/金额）</label>
+        <label><input type="checkbox" id="parseAttachments" checked> 下载并解析附件 PDF/Word（S1）</label>
+        <label><input type="checkbox" id="onlyAttachment"> 仅分析有附件项目</label>
+        <p class="hint">勾选后只处理列表里标记有附件的公告，适合 S1 附件验收。</p>
+        <label><input type="checkbox" id="headless"> 无头浏览器</label>
+      </div>
+
+      <div class="progress-block hidden" id="progressBlock">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <p class="hint" id="progressMsg"></p>
+      </div>
+
+      <div class="run-actions">
+        <button class="btn primary" id="btnRun">开始分析（统计+详情）</button>
+        <button type="button" class="btn btn-danger" id="btnAbort" hidden>中止分析</button>
+      </div>
+      <p class="hint" id="statusOut"></p>
+
+      <h2>历史报告</h2>
+      <ul class="history-list" id="historyList"><li class="empty">暂无</li></ul>
+    </section>
+
+    <section class="panel results-panel" id="resultsPanel">
+      <div class="result-header">
+        <h2>分析结果</h2>
+        <div class="toolbar">
+          <button class="btn ghost btn-sm" id="btnExportXlsx" disabled>下载 Excel</button>
+          <button class="btn ghost btn-sm" id="btnExportMd" disabled>下载 MD</button>
+        </div>
+      </div>
+
+      <div id="resultsEmpty" class="results-empty">
+        <p>完成分析后，将在此直接展示<strong>统计概览</strong>与<strong>产品统筹表</strong>，无需先下载 Excel。</p>
+        <p class="hint">也可从左侧「历史报告」打开已有结果。</p>
+      </div>
+
+      <div id="resultsBody" class="results-body hidden">
+        <p class="result-meta" id="resultMeta"></p>
+        <div class="summary-cards" id="summaryCards"></div>
+
+        <div class="result-tabs" role="tablist">
+          <button type="button" class="tab active" data-tab="products">产品统筹表</button>
+          <button type="button" class="tab" data-tab="report">分析报告</button>
+          <button type="button" class="tab" data-tab="stats">统计明细</button>
+          <button type="button" class="tab" data-tab="unmatched">未命中/异常</button>
+        </div>
+
+        <div class="tab-panel active" id="tabProducts">
+          <div class="table-toolbar">
+            <input type="search" id="tableFilter" placeholder="筛选项目/产品/型号…" class="table-filter">
+            <span class="table-count" id="tableCount"></span>
+          </div>
+          <div class="table-wrap">
+            <table id="productsTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>项目名称</th>
+                  <th>产品名称</th>
+                  <th>品牌</th>
+                  <th>型号</th>
+                  <th>数量</th>
+                  <th>单价</th>
+                  <th>行金额</th>
+                  <th>地区</th>
+                  <th>中标单位</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tabReport">
+          <div id="reportPreview" class="report-preview markdown-body"></div>
+        </div>
+
+        <div class="tab-panel" id="tabStats">
+          <pre id="statsPreview" class="json-preview"></pre>
+        </div>
+
+        <div class="tab-panel" id="tabUnmatched">
+          <div class="table-toolbar">
+            <span class="hint" id="unmatchedHint">详情失败或未命中关键词的项目</span>
+            <button type="button" class="btn ghost btn-sm" id="btnRetryFailed" disabled>重跑失败项</button>
+            <button type="button" class="btn ghost btn-sm" id="btnRetryUnmatched" disabled>重跑未命中</button>
+            <button type="button" class="btn ghost btn-sm" id="btnRetryAttachments" disabled>重跑附件队列</button>
+          </div>
+          <div class="table-wrap">
+            <table id="unmatchedTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>项目名称</th>
+                  <th>原因</th>
+                  <th>详情</th>
+                  <th>产品数</th>
+                  <th>有附件</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a href="/work/">返回工作门户</a> ·
+    <a href="/tender-info/">标书信息获取</a> ·
+    <a href="/skills/tender-product-analysis/GAPS.md" target="_blank">能力清单</a>
+  </footer>
+  <script src="app.js?v=9"></script>
+</body>
+</html>

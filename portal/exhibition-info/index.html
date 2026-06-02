@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>展会信息收集 — ccbaby 工作门户</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top-bar">
+    <div class="breadcrumb"><a href="/work/">工作门户</a> / 展会信息收集</div>
+    <h1>展会信息收集</h1>
+  </header>
+
+  <div class="layout">
+    <aside class="panel">
+      <span class="badge scaffold">开发中</span>
+      <h2>简介</h2>
+      <p>行业展会信息检索与汇总</p>
+      <h2 style="margin-top:16px">输入类型</h2>
+      <ul>
+        <li>text</li>
+      </ul>
+      <h2 style="margin-top:16px">输出格式</h2>
+      <p>markdown-report</p>
+      <a class="btn" href="/skills/exhibition-info/SKILL.md" target="_blank">查看 SKILL 定义</a>
+    </aside>
+
+    <main class="panel">
+      <h2>操作区</h2>
+      <div class="placeholder">
+        <p>功能开发中</p>
+        <p style="margin-top:8px;font-size:0.85rem">骨架阶段 — 后续在此接入文件上传与 AI 分析</p>
+      </div>
+      <button class="btn disabled" disabled id="btnRun">开始分析</button>
+      <pre id="statusOut" style="margin-top:16px;font-size:0.85rem;color:#64748b"></pre>
+    </main>
+  </div>
+
+  <footer>
+    <a href="/work/">返回工作门户</a> · <a href="/">开发工作台</a>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

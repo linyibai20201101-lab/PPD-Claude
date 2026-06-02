@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude 对话</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 800px;
+      height: 90vh;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      color: white;
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .chat-header-title { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 140px; }
+    .model-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .model-select-wrap label { opacity: 0.9; white-space: nowrap; }
+    .model-select {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.15);
+      color: white;
+      font-size: 13px;
+      max-width: 220px;
+      cursor: pointer;
+      outline: none;
+    }
+    .model-select option { color: #1e293b; background: white; }
+    .model-hint {
+      width: 100%;
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.85;
+      line-height: 1.4;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: #f5f7fb;
+    }
+    .message {
+      margin-bottom: 16px;
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .user-message { justify-content: flex-end; }
+    .assistant-message { justify-content: flex-start; }
+    .message-content {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      line-height: 1.6;
+      font-size: 15px;
+      word-wrap: break-word;
+    }
+    .user-message .message-content {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .assistant-message .message-content {
+      background: white;
+      color: #333;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .typing-indicator {
+      display: none;
+      padding: 12px 16px;
+      background: white;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      max-width: 75%;
+    }
+    .typing-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #999;
+      margin: 0 2px;
+      animation: typing 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-8px); }
+    }
+    .chat-input-area {
+      padding: 16px 20px;
+      background: white;
+      border-top: 1px solid #eee;
+      display: flex;
+      gap: 12px;
+    }
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 15px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      min-height: 48px;
+      max-height: 120px;
+      font-family: inherit;
+    }
+    .chat-input:focus { border-color: #667eea; }
+    .send-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    .send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .clear-btn {
+      padding: 12px 16px;
+      background: #f0f0f0;
+      color: #666;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .clear-btn:hover { background: #e0e0e0; }
+    .welcome-message {
+      text-align: center;
+      color: #888;
+      padding: 40px 20px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    .error-message {
+      background: #fee;
+      color: #c00;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+    .markdown-content pre {
+      background: #f4f4f4;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+    .markdown-content code {
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: 14px;
+    }
+    .markdown-content p { margin: 8px 0; }
+    .markdown-content ul, .markdown-content ol {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="chat-header-title">
+        <span>🤖</span>
+        <span>AI 对话</span>
+      </div>
+      <div class="model-select-wrap">
+        <label for="modelSelect">模型</label>
+        <select class="model-select" id="modelSelect" title="选择大模型">
+          <option value="">加载中…</option>
+        </select>
+      </div>
+      <p class="model-hint" id="modelHint"></p>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="welcome-message">
+        👋 你好！请选择上方模型后开始对话<br>
+        <small>默认使用小米 MiMo（与 portal/.env 配置一致）</small>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <button class="clear-btn" onclick="clearChat()">清空</button>
+      <textarea
+        class="chat-input"
+        id="userInput"
+        placeholder="输入你的问题..."
+        rows="1"
+      ></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">发送</button>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const modelSelect = document.getElementById('modelSelect');
+    const modelHint = document.getElementById('modelHint');
+    let conversationHistory = [];
+    let selectedModel = '';
+
+    async function loadModels() {
+      try {
+        const res = await fetch(`${API_BASE}/api/models`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || '无法加载模型列表');
+
+        modelSelect.innerHTML = '';
+        const saved = localStorage.getItem('portal_chat_model');
+        let hasSelected = false;
+
+        for (const group of data.groups || []) {
+          const optgroup = document.createElement('optgroup');
+          optgroup.label = group.name;
+          for (const m of group.models || []) {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = m.available ? m.name : `${m.name}（不可用）`;
+            opt.disabled = !m.available;
+            opt.title = m.description || '';
+            if (!m.available && m.unavailable_reason) {
+              opt.title = m.unavailable_reason;
+            }
+            if ((saved && saved === m.id && m.available) ||
+                (!hasSelected && m.id === data.default_model && m.available)) {
+              opt.selected = true;
+              hasSelected = true;
+              selectedModel = m.id;
+              modelHint.textContent = m.description || '';
+            }
+            optgroup.appendChild(opt);
+          }
+          modelSelect.appendChild(optgroup);
+        }
+
+        if (!hasSelected && modelSelect.options.length) {
+          for (const opt of modelSelect.options) {
+            if (!opt.disabled) {
+              opt.selected = true;
+              selectedModel = opt.value;
+              modelHint.textContent = opt.title || '';
+              break;
+            }
+          }
+        }
+
+        if (data.token_plan) {
+          modelHint.textContent = (modelHint.textContent ? modelHint.textContent + ' · ' : '') +
+            '当前为 Token Plan 套餐，可用 mimo-v2.5-pro';
+        }
+      } catch (e) {
+        modelSelect.innerHTML = '<option value="mimo-v2.5-pro">MiMo V2.5 Pro</option>';
+        selectedModel = 'mimo-v2.5-pro';
+        modelHint.textContent = '模型列表加载失败，已使用默认 mimo-v2.5-pro';
+      }
+    }
+
+    modelSelect.addEventListener('change', () => {
+      selectedModel = modelSelect.value;
+      localStorage.setItem('portal_chat_model', selectedModel);
+      const opt = modelSelect.selectedOptions[0];
+      modelHint.textContent = opt?.title || opt?.textContent || '';
+    });
+
+    loadModels();
+
+    // Auto-resize textarea
+    userInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // Send on Enter (Shift+Enter for new line)
+    userInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    function addMessage(role, content) {
+      const welcomeMsg = chatMessages.querySelector('.welcome-message');
+      if (welcomeMsg) welcomeMsg.remove();
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${role}-message`;
+      messageDiv.innerHTML = `
+        <div class="message-content markdown-content">${formatContent(content)}</div>
+      `;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return messageDiv;
+    }
+
+    function showTyping() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message assistant-message';
+      typingDiv.id = 'typingIndicator';
+      typingDiv.innerHTML = `
+        <div class="typing-indicator" style="display:block">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      `;
+      chatMessages.appendChild(typingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function hideTyping() {
+      const typing = document.getElementById('typingIndicator');
+      if (typing) typing.remove();
+    }
+
+    function formatContent(text) {
+      // Simple markdown-like formatting
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    }
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message || sendBtn.disabled) return;
+
+      // Add user message
+      addMessage('user', message);
+      conversationHistory.push({ role: 'user', content: message });
+      userInput.value = '';
+      userInput.style.height = 'auto';
+
+      // Show typing indicator
+      showTyping();
+      sendBtn.disabled = true;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: conversationHistory,
+            model: selectedModel || undefined,
+          })
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          const detail = err.detail || `HTTP ${response.status}`;
+          if (response.status === 401) {
+            throw new Error(
+              detail + '\n\n请到 https://platform.xiaomimimo.com 重新生成 API Key，写入 portal/.env 后重启服务。'
+            );
+          }
+          throw new Error(detail);
+        }
+
+        const data = await response.json();
+        hideTyping();
+
+        if (data.error) {
+          addMessage('assistant', `❌ 错误: ${data.error}`);
+        } else {
+          addMessage('assistant', data.content);
+          conversationHistory.push({ role: 'assistant', content: data.content });
+        }
+      } catch (error) {
+        hideTyping();
+        addMessage('assistant', `❌ 连接失败: ${error.message}\n\n请确保后端服务已启动 (python server.py)`);
+      } finally {
+        sendBtn.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    function clearChat() {
+      conversationHistory = [];
+      chatMessages.innerHTML = `
+        <div class="welcome-message">
+          👋 你好！请选择上方模型后开始对话<br>
+          <small>默认使用小米 MiMo（与 portal/.env 配置一致）</small>
+        </div>
+      `;
+    }
+
+    // Focus input on load
+    userInput.focus();
+  </script>
+</body>
+</html>
